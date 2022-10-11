@@ -1,24 +1,35 @@
 package digitalcity.demeyert.overstockmanager.controller;
 
 import digitalcity.demeyert.overstockmanager.model.dto.UserDTO;
+import digitalcity.demeyert.overstockmanager.model.forms.LoginForm;
 import digitalcity.demeyert.overstockmanager.model.forms.UserModifyForm;
 import digitalcity.demeyert.overstockmanager.model.forms.UsersCreateForm;
+import digitalcity.demeyert.overstockmanager.service.CustomUserDetailsServiceImpl;
 import digitalcity.demeyert.overstockmanager.service.UserService;
-import org.springframework.http.MediaType;
+import digitalcity.demeyert.overstockmanager.utils.JwtProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import javax.validation.Valid;
 
 @CrossOrigin("http://localhost:8081")
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
+    private final CustomUserDetailsServiceImpl userDetailsService;
+    private final AuthenticationManager authManager;
+    private final JwtProvider jwtProvider;
 
-    public UserController(UserService userService) {
+
+    public UserController(UserService userService, CustomUserDetailsServiceImpl userDetailsService, AuthenticationManager authManager, JwtProvider jwtProvider) {
         this.userService = userService;
+        this.userDetailsService = userDetailsService;
+        this.authManager = authManager;
+        this.jwtProvider = jwtProvider;
     }
 
     @GetMapping("/{id:[0-9]+}")
@@ -26,14 +37,21 @@ public class UserController {
         return userService.getOne(id);
     }
 
-    @PostMapping("/create")
-    public UserDTO create (@RequestBody UsersCreateForm usersCreateForm) {
-        return userService.create(usersCreateForm);
+    @PostMapping("/register")
+    public void createUser (@RequestBody UsersCreateForm usersCreateForm) {
+        userDetailsService.create(usersCreateForm);
     }
+
+    @PostMapping("/login")
+    public String login(@Valid @RequestBody LoginForm form){
+        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(form.getEmail(), form.getPassword()));
+        return jwtProvider.createToken(auth);
+    }
+
 
     @PatchMapping(value = "/update")
     public String modifyUser(@RequestBody UserModifyForm userModifyForm) {
-        userService.modifyImage(userModifyForm);
+        userService.update(userModifyForm);
         return "your information is successfully updated";
     }
 
