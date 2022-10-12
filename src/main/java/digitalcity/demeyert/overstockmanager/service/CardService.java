@@ -47,7 +47,7 @@ public class CardService {
         return repository.findById(id).map(mapper::fromEntities).orElseThrow(() -> new ElementNotFoundException(Card.class, id));
     }
 
-    public List<CardDTO> cardByrarity(Rarity rarity) {
+    public List<CardDTO> cardByRarity(Rarity rarity) {
         return repository.findCardsByRarity(rarity).stream().map(mapper::fromEntities).collect(Collectors.toList());
     }
     public List<CardDTO> getAll () {

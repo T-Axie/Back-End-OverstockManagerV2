@@ -30,7 +30,7 @@ public class CardController {
     }
     @GetMapping("/rarity")
     public List<CardDTO> getByRarity(@RequestParam Rarity rarity){
-        return service.cardByrarity(rarity);
+        return service.cardByRarity(rarity);
     }
     @DeleteMapping("/{id:[0-9]+}")
     public CardDTO delete (@PathVariable long id) {
