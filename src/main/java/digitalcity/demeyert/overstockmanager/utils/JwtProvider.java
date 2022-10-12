@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import digitalcity.demeyert.overstockmanager.model.dto.KeyDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,8 +34,9 @@ public class JwtProvider {
         this.service = service;
     }
 
-    public String createToken(Authentication auth){
-        return JWT.create()
+    public KeyDTO createToken(Authentication auth){
+        KeyDTO key = new KeyDTO();
+        key.setKey( JWT.create()
                 // Declarer les claims du payload
                 .withExpiresAt( Instant.now().plusSeconds(properties.getExpiresAt()) )
                 .withSubject(auth.getName())
@@ -45,7 +47,8 @@ public class JwtProvider {
                                 .collect(Collectors.toList())
                 )
                 // Declarer la signature
-                .sign( Algorithm.HMAC512(properties.getSecret()) );
+                .sign( Algorithm.HMAC512(properties.getSecret()) ));
+        return key;
     }
 
     public String extractToken(HttpServletRequest request){

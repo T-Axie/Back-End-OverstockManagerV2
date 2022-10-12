@@ -1,5 +1,6 @@
 package digitalcity.demeyert.overstockmanager.controller;
 
+import digitalcity.demeyert.overstockmanager.model.dto.KeyDTO;
 import digitalcity.demeyert.overstockmanager.model.dto.UserDTO;
 import digitalcity.demeyert.overstockmanager.model.forms.LoginForm;
 import digitalcity.demeyert.overstockmanager.model.forms.UserModifyForm;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@CrossOrigin("http://localhost:8081")
+@CrossOrigin("http://localhost:8100")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -43,7 +44,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@Valid @RequestBody LoginForm form){
+    public KeyDTO login(@Valid @RequestBody LoginForm form){
         Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(form.getEmail(), form.getPassword()));
         return jwtProvider.createToken(auth);
     }
