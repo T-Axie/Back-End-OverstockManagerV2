@@ -30,7 +30,7 @@ public class UserService {
         return mapper.fromEntity(userRepository.save(mapper.toEntity(usersCreateForm)));
     }
 
-    public void modifyImage(UserModifyForm userDTO) {
+    public void update(UserModifyForm userDTO) {
         Users usersToUpdate = mapper.toEntity( getOne(userDTO.getId()) );
 
         if (userDTO.getURLImage() != null)

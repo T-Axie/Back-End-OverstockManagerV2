@@ -18,3 +18,10 @@ spring:
         max-file-size: 10MB
         max-request-size: 10MB
 
+application:
+  jwt:
+    expiresAt: 846000
+    headerPrefix: "Bearer "
+    secret: "Y2nr@Svs1#Rume@v9^r$$hwTm563QpxLfdDTO$VdLLMnNRJmcQ"
+    headerKey: "Authorization"
+
