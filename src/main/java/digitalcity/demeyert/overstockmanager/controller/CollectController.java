@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 
-@CrossOrigin("http://localhost:8081")
+@CrossOrigin("http://localhost:8100")
 @RestController
 @RequestMapping("/collect")
 public class CollectController {
