@@ -8,8 +8,12 @@ import digitalcity.demeyert.overstockmanager.model.entity.Users;
 import digitalcity.demeyert.overstockmanager.model.forms.UserModifyForm;
 import digitalcity.demeyert.overstockmanager.model.forms.UsersCreateForm;
 import digitalcity.demeyert.overstockmanager.repository.UserRepository;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -22,16 +26,16 @@ public class UserService {
         this.mapper = mapper;
     }
 
-    public UserDTO getOne(long id) {
+    public UserDTO getOne(long id/*, UsernamePasswordAuthenticationToken token*/) {
+//        Users users = userRepository.findById(id).orElseThrow(() -> new ElementNotFoundException(Card.class, id));
+//        String email = token.getPrincipal().toString();
+
         return mapper.fromEntity(userRepository.findById(id).orElseThrow(() -> new ElementNotFoundException(Card.class, id)));
     }
 
-    public UserDTO create(UsersCreateForm usersCreateForm) {
-        return mapper.fromEntity(userRepository.save(mapper.toEntity(usersCreateForm)));
-    }
-
     public void update(UserModifyForm userDTO) {
-        Users usersToUpdate = mapper.toEntity( getOne(userDTO.getId()) );
+        Users usersToUpdate = userRepository.findById(userDTO.getId())
+                .orElseThrow(() -> new ElementNotFoundException(Card.class, userDTO.getId()));
 
         if (userDTO.getURLImage() != null)
             usersToUpdate.setURLImage(userDTO.getURLImage());
@@ -41,5 +45,12 @@ public class UserService {
             usersToUpdate.setUsername(userDTO.getUsername());
 
         userRepository.save(usersToUpdate);
+    }
+
+    public static boolean isAuthorize (String email, UsernamePasswordAuthenticationToken token) {
+        if (token == null)
+            throw new IllegalArgumentException();
+        String username = token.getPrincipal().toString();
+        return Objects.equals(email, username);
     }
 }

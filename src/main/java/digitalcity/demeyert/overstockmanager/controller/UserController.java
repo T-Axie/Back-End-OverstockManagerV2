@@ -33,9 +33,9 @@ public class UserController {
         this.jwtProvider = jwtProvider;
     }
 
-    @GetMapping("/{id:[0-9]+}")
-    public UserDTO getOne (@PathVariable long id) {
-        return userService.getOne(id);
+    @GetMapping("/myProfile")
+    public UserDTO getOne (@PathVariable long id, UsernamePasswordAuthenticationToken token) {
+        return userService.getOne(id/*, token */);
     }
 
     @PostMapping("/register")

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:8081")
+@CrossOrigin("http://localhost:8100")
 @RestController
 @RequestMapping("/card")
 public class CardController {

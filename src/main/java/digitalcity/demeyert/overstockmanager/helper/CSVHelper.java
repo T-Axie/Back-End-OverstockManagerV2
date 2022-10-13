@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class CSVHelper {
     public static String TYPE = "text/csv";
-    static String[] HEADERs = { "cardmarketId", "name", "gameSet", "language", "count", "foil", "signed", "playset", "rarity", "state", "comment" };
+    static String[] HEADERs = { "cardmarketId", "name", "gameSet", "language", "quantity", "isFoil", "isSigned", "isPlayset", "rarity", "condition", "comment" };
 
     public static boolean hasCSVFormat(MultipartFile file) {
 
@@ -50,13 +50,13 @@ public class CSVHelper {
                         Integer.parseInt(csvRecord.get("cardmarketId")),
                         csvRecord.get("name"),
                         csvRecord.get("gameSet"),
-                        Language.valueOf(csvRecord.get("language").toUpperCase()),
-                        Integer.parseInt(csvRecord.get("count")),
-                        Boolean.parseBoolean(csvRecord.get("foil")),
-                        Boolean.parseBoolean(csvRecord.get("signed")),
-                        Boolean.parseBoolean(csvRecord.get("playset")),
+                        Language.fromLabel(csvRecord.get("language")),
+                        Integer.parseInt(csvRecord.get("quantity")),
+                        Boolean.parseBoolean(csvRecord.get("isFoil")),
+                        Boolean.parseBoolean(csvRecord.get("isSigned")),
+                        Boolean.parseBoolean(csvRecord.get("isPlayset")),
                         Rarity.valueOf(csvRecord.get("rarity").toUpperCase()),
-                        State.valueOf(csvRecord.get("state").toUpperCase()),
+                        State.valueOf(csvRecord.get("condition").toUpperCase()),
                         csvRecord.get("comment")
                 );
 
@@ -67,5 +67,4 @@ public class CSVHelper {
             throw new RuntimeException("fail to parse CSV file: " + e.getMessage());
         }
     }
-
 }
