@@ -10,9 +10,7 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class UserModifyForm {
-    private long id;
-    private String description;
     private String username;
+    private String description;
     private String URLImage;
-
 }

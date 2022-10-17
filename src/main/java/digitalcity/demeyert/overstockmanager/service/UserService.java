@@ -6,36 +6,36 @@ import digitalcity.demeyert.overstockmanager.model.dto.UserDTO;
 import digitalcity.demeyert.overstockmanager.model.entity.Card;
 import digitalcity.demeyert.overstockmanager.model.entity.Users;
 import digitalcity.demeyert.overstockmanager.model.forms.UserModifyForm;
-import digitalcity.demeyert.overstockmanager.model.forms.UsersCreateForm;
 import digitalcity.demeyert.overstockmanager.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
 @Service
 public class UserService {
 
-    UserRepository userRepository;
-    UsersMapper mapper;
+    private final UserRepository userRepository;
+    private final UsersMapper mapper;
+    private final PasswordEncoder encoder;
 
-    public UserService(UserRepository userRepository, UsersMapper mapper) {
+    public UserService(UserRepository userRepository, UsersMapper mapper, PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.mapper = mapper;
+        this.encoder = encoder;
     }
 
-    public UserDTO getOne(long id/*, UsernamePasswordAuthenticationToken token*/) {
-//        Users users = userRepository.findById(id).orElseThrow(() -> new ElementNotFoundException(Card.class, id));
-//        String email = token.getPrincipal().toString();
-
-        return mapper.fromEntity(userRepository.findById(id).orElseThrow(() -> new ElementNotFoundException(Card.class, id)));
+    public UserDTO getOne(String email) {
+        Users user = userRepository.findByEmail(email).orElseThrow(() -> new ElementNotFoundException(Card.class, email));
+        user.setPassword(null);
+        return mapper.fromEntity(user);
     }
 
-    public void update(UserModifyForm userDTO) {
-        Users usersToUpdate = userRepository.findById(userDTO.getId())
-                .orElseThrow(() -> new ElementNotFoundException(Card.class, userDTO.getId()));
+    public void update(UsernamePasswordAuthenticationToken token, UserModifyForm userDTO) {
+        Users usersToUpdate = userRepository.findByEmail(token.getPrincipal().toString())
+                .orElseThrow(() -> new ElementNotFoundException(Card.class, token.getPrincipal().toString()));
 
         if (userDTO.getURLImage() != null)
             usersToUpdate.setURLImage(userDTO.getURLImage());
@@ -43,6 +43,7 @@ public class UserService {
             usersToUpdate.setDescription(userDTO.getDescription());
         if (userDTO.getUsername() != null)
             usersToUpdate.setUsername(userDTO.getUsername());
+
 
         userRepository.save(usersToUpdate);
     }

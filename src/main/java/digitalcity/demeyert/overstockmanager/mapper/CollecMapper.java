@@ -12,7 +12,7 @@ public interface CollecMapper {
     CollecDTO fromEntities(Collec collec);
     Collec toEntities(CollecDTO collecDTO);
 
-    Collec toEntrities(CollecCreateForm collecCreateForm);
+    Collec toEntities(CollecCreateForm collecCreateForm);
 
 
 }

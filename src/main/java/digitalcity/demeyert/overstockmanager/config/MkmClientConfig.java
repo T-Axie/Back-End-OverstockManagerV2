@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MkmClientConfig implements InitializingBean {
 
-    private final String appToken = "";
-    private final String appSecret = "";
-    private final String accessToken = "";
-    private final String accessTokenSecret = "";
+    private final String appToken = "5koy0GXgplAPr4lq";
+    private final String appSecret = "y2RswBdjl0XKBcMmcWlTiF1RAzn7sCSn";
+    private final String accessToken = "5OSebVjddW28CmLh739k5cXXTZY1J44L";
+    private final String accessTokenSecret = "JSZYNEKqO6L67ttNpb2SQvq4YA1dQZHP";
 
     @Override
     public void afterPropertiesSet() throws Exception {

@@ -8,6 +8,7 @@ import digitalcity.demeyert.overstockmanager.service.CSVService;
 import digitalcity.demeyert.overstockmanager.service.CollectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,17 +39,18 @@ public class CollectController {
     }
 
     @PostMapping
-    public CollecDTO insert(@Valid @RequestBody CollecCreateForm form) {
-        return service.create(form);
+    public CollecDTO insert(UsernamePasswordAuthenticationToken auth, @Valid @RequestBody CollecCreateForm form) {
+        return service.create(auth, form);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public CollecDTO delete(@PathVariable long id) {
-        return service.delete(id);
+    public String delete(UsernamePasswordAuthenticationToken auth, @PathVariable long id) {
+        service.delete(auth, id);
+        return "Your collection is successfully removed";
     }
     @PutMapping("/{id}")
-    public CollecDTO update(@PathVariable long id, @Valid @RequestBody CollecDTO collecDTO) {
+    public CollecDTO update(UsernamePasswordAuthenticationToken auth, @PathVariable long id, @Valid @RequestBody CollecDTO collecDTO) {
         return service.update(id, collecDTO);
     }
 

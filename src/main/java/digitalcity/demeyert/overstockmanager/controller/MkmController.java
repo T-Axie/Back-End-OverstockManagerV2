@@ -1,5 +1,7 @@
 package digitalcity.demeyert.overstockmanager.controller;
 
+import digitalcity.demeyert.overstockmanager.mapper.CardMapper;
+import digitalcity.demeyert.overstockmanager.model.dto.CardDTO;
 import digitalcity.demeyert.overstockmanager.service.MKMService;
 import org.api.mkm.modele.Article;
 import org.api.mkm.modele.LightArticle;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin("http://localhost:8100")
 @RestController
@@ -20,11 +23,13 @@ public class MkmController {
     private final OrderService orderService;
 
     private final MKMService mkmService;
+    private final CardMapper cardMapper;
 
-    public MkmController(StockService stockService, OrderService orderService, MKMService mkmService) {
+    public MkmController(StockService stockService, OrderService orderService, MKMService mkmService, CardMapper cardMapper) {
         this.stockService = stockService;
         this.orderService = orderService;
         this.mkmService = mkmService;
+        this.cardMapper = cardMapper;
     }
 
     @GetMapping("getStock")
@@ -51,4 +56,9 @@ public class MkmController {
         return orderService.listOrders(OrderService.ACTOR.seller, OrderService.STATE.sent, 5);
     }
 
+    @GetMapping("restock/{id:[0-9]+}")
+    public List<CardDTO> restock(@PathVariable Long id) {
+        return mkmService.restock(id).stream().map(cardMapper::fromEntities).collect(Collectors.toList());
+
+    }
 }

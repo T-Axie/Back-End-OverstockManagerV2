@@ -8,6 +8,7 @@ import digitalcity.demeyert.overstockmanager.model.forms.UsersCreateForm;
 import digitalcity.demeyert.overstockmanager.service.CustomUserDetailsServiceImpl;
 import digitalcity.demeyert.overstockmanager.service.UserService;
 import digitalcity.demeyert.overstockmanager.utils.JwtProvider;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,8 +35,9 @@ public class UserController {
     }
 
     @GetMapping("/myProfile")
-    public UserDTO getOne (@PathVariable long id, UsernamePasswordAuthenticationToken token) {
-        return userService.getOne(id/*, token */);
+    public UserDTO getUser (UsernamePasswordAuthenticationToken token) {
+        System.out.println(token);
+        return userService.getOne(token.getPrincipal().toString());
     }
 
     @PostMapping("/register")
@@ -51,8 +53,8 @@ public class UserController {
 
 
     @PatchMapping(value = "/update")
-    public String modifyUser(@RequestBody UserModifyForm userModifyForm) {
-        userService.update(userModifyForm);
+    public String update(UsernamePasswordAuthenticationToken auth, @RequestBody UserModifyForm userModifyForm) {
+        userService.update(auth, userModifyForm);
         return "your information is successfully updated";
     }
 

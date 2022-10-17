@@ -2,19 +2,23 @@ package digitalcity.demeyert.overstockmanager.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import digitalcity.demeyert.overstockmanager.mapper.CardMapper;
+import digitalcity.demeyert.overstockmanager.mapper.CollecMapper;
+import digitalcity.demeyert.overstockmanager.model.entity.Card;
+import digitalcity.demeyert.overstockmanager.model.entity.Collec;
+import digitalcity.demeyert.overstockmanager.model.entity.CollectCard;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.api.mkm.modele.Article;
 import org.api.mkm.modele.Article.ARTICLES_ATT;
-import org.api.mkm.modele.Game;
 import org.api.mkm.modele.Inserted;
 import org.api.mkm.modele.LightArticle;
 import org.api.mkm.modele.Link;
@@ -30,8 +34,17 @@ public class MKMService {
 
     private XStream xstream;
     private Logger logger = LogManager.getLogger(this.getClass());
+    private CardMapper mapper;
+    private CollecMapper collecMapper;
+    private CollectService collectService;
+    private CardService cardService;
 
-    public MKMService() {
+    private List<LightArticle> mkmStock = new ArrayList<>();
+
+    public MKMService(CardMapper mapper, CollecMapper collecMapper, CollectService collectService) {
+        this.mapper = mapper;
+        this.collecMapper = collecMapper;
+        this.collectService = collectService;
         xstream = Tools.instNewXstream();
         xstream.addImplicitCollection(Response.class, "links", Link.class);
         xstream.addImplicitCollection(Response.class, "lightArticles",LightArticle.class);
@@ -40,12 +53,10 @@ public class MKMService {
 
     }
     public List<LightArticle> getStockForDemo() throws IOException {
-        List<LightArticle> finalList = new ArrayList<>();
         for (int i = 1; i < 1000; i+=100) {
-            List<LightArticle> temporaryList = getStock(i);
-            finalList.addAll(temporaryList);
+            mkmStock.addAll(getStock(i));
         }
-        return finalList;
+        return mkmStock;
     }
 
     public List<LightArticle> getStock() throws IOException
@@ -281,4 +292,43 @@ public class MKMService {
         Tools.getXMLResponse(link, "PUT", this.getClass(), temp.toString());
     }
 
+    public List<Card> restock(Long id) {
+        List<Card> mkmStockCard = mkmStock.stream().map(mapper::toEntitiesLight).collect(Collectors.toList());
+
+        Collec collecToRestock = collecMapper.toEntities( collectService.getOne(id) );
+        List<Card> overstockToCSV = new ArrayList<>();
+
+        List<CollectCard> overstock = collecToRestock.getCardList().stream()
+                .filter(overstockCollec ->
+                    mkmStockCard.stream().anyMatch(stockOnline -> {
+//                      if (overstockCollec.getCard().getCardmarketId() != stockOnline.getCardmarketId()) {
+//                          overstockCollec.getCard().setCount(4 - stockOnline.getCount());
+//                          overstockToCSV.add(overstockCollec.getCard());
+//                        }
+                        boolean same =
+                            stockOnline.isFoil() == overstockCollec.getCard().isFoil() &&
+                            stockOnline.getCardmarketId() == overstockCollec.getCard().getCardmarketId() &&
+                            stockOnline.getLanguage().equals(overstockCollec.getCard().getLanguage()) &&
+                            stockOnline.isSigned() == overstockCollec.getCard().isSigned() &&
+                            stockOnline.getState().equals( overstockCollec.getCard().getState() );
+                        if (same && stockOnline.getCount() < 4) {
+                            overstockCollec.getCard().setCount(4 - stockOnline.getCount());
+
+
+                            overstockCollec.setQtt(
+                                    Math.max(overstockCollec.getQtt() - (4 - stockOnline.getCount()), 0)
+                            );
+
+
+                            overstockToCSV.add(overstockCollec.getCard());
+
+                            // Rajouter les cartes sur le site via L'API MKM, en attendant, génère une liste de carte à restock
+                            return true;
+                        }
+                        return false;
+                    })
+                ).collect(Collectors.toList());
+
+        return  overstockToCSV;
+    }
 }

@@ -25,9 +25,10 @@ public class Users implements UserDetails {
     private String password;
     private String description;
     private String username;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Collec> collec;
     private String URLImage;
+
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
@@ -35,6 +36,12 @@ public class Users implements UserDetails {
     private boolean enabled = true;
     public Long getId() {
         return id;
+    }
+    public void setOneCollec (Collec collec) {
+        this.collec.add(collec);
+    }
+    public void removeOneCollec (Collec collec) {
+        this.collec.remove(collec);
     }
 
     public void setId(Long id) {
@@ -61,5 +68,10 @@ public class Users implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 }
